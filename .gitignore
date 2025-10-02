@@ -19,5 +19,4 @@ StreamingAssets*
 .DS_Store
 MLModels/images/
 
-Builds/*
-!Builds/*.apk
+Builds/

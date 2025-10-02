@@ -1,10 +1,10 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
 using Meta.XR.Samples;
-using Unity.Sentis;
+
 using UnityEditor;
 using UnityEngine;
-using FF = Unity.Sentis.Functional;
+using FF = Unity.InferenceEngine.Functional;
 
 namespace PassthroughCameraSamples.MultiObjectDetection.Editor
 {
@@ -38,10 +38,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection.Editor
         private void ConvertModel()
         {
             //Load model
-            var model = ModelLoader.Load(m_targetClass.OnnxModel);
+            var model = Unity.InferenceEngine.ModelLoader.Load(m_targetClass.OnnxModel);
 
             //Here we transform the output of the model by feeding it through a Non-Max-Suppression layer.
-            var graph = new FunctionalGraph();
+            var graph = new Unity.InferenceEngine.FunctionalGraph();
             var input = graph.AddInput(model, 0);
 
             var centersToCornersData = new[]
@@ -51,24 +51,24 @@ namespace PassthroughCameraSamples.MultiObjectDetection.Editor
                         -0.5f,  0,      0.5f,   0,
                         0,      -0.5f,  0,      0.5f
             };
-            var centersToCorners = FF.Constant(new TensorShape(4, 4), centersToCornersData);
+            var centersToCorners = FF.Constant(new Unity.InferenceEngine.TensorShape(4, 4), centersToCornersData);
             var modelOutput = FF.Forward(model, input)[0];  //shape(1,N,85)
             // Following for yolo model. in (1, 84, N) out put shape
-            var boxCoords = modelOutput[0, ..4, ..].Transpose(0, 1);
-            var allScores = modelOutput[0, 4.., ..].Transpose(0, 1);
+            var boxCoords = Unity.InferenceEngine.Functional.Transpose(modelOutput[0, ..4, ..], 0, 1);
+            var allScores = Unity.InferenceEngine.Functional.Transpose(modelOutput[0, 4.., ..], 0, 1);
             var scores = FF.ReduceMax(allScores, 1);    //shape=(N)
             var classIDs = FF.ArgMax(allScores, 1); //shape=(N)
             var boxCorners = FF.MatMul(boxCoords, centersToCorners);    //shape=(N,4)
             var indices = FF.NMS(boxCorners, scores, m_iouThreshold, m_scoreThreshold); //shape=(N)
-            var indices2 = indices.Unsqueeze(-1).BroadcastTo(new[] { 4 });  //shape=(N,4)
+            var indices2 = Unity.InferenceEngine.Functional.BroadcastTo(Unity.InferenceEngine.Functional.Unsqueeze(indices, -1), new[] { 4 });  //shape=(N,4)
             var labelIDs = FF.Gather(classIDs, 0, indices); //shape=(N)
             var coords = FF.Gather(boxCoords, 0, indices2); //shape=(N,4)
 
             var modelFinal = graph.Compile(coords, labelIDs);
 
             //Export the model to Sentis format
-            ModelQuantizer.QuantizeWeights(QuantizationType.Uint8, ref modelFinal);
-            ModelWriter.Save(FILEPATH, modelFinal);
+            Unity.InferenceEngine.ModelQuantizer.QuantizeWeights(Unity.InferenceEngine.QuantizationType.Uint8, ref modelFinal);
+            Unity.InferenceEngine.ModelWriter.Save(FILEPATH, modelFinal);
 
             // refresh assets
             AssetDatabase.Refresh();

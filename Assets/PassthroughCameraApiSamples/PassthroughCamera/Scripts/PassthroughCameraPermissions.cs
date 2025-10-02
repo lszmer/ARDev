@@ -53,7 +53,6 @@ namespace PassthroughCameraSamples
                 var callbacks = new PermissionCallbacks();
                 callbacks.PermissionDenied += PermissionCallbacksPermissionDenied;
                 callbacks.PermissionGranted += PermissionCallbacksPermissionGranted;
-                callbacks.PermissionDeniedAndDontAskAgain += PermissionCallbacksPermissionDenied;
 
                 // It's important to request all necessary permissions in one request because only one 'PermissionCallbacks' instance is supported at a time.
                 var allPermissions = CameraPermissions.Concat(PermissionRequestsOnStartup).ToArray();

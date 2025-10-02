@@ -17,4 +17,7 @@ PerformanceTestRun*.*
 StreamingAssets*
 !NativeSamples.zip
 .DS_Store
-MLModels/images/ 
+MLModels/images/
+
+Builds/*
+!Builds/*.apk

@@ -34,8 +34,8 @@ MonoBehaviour:
     - line: '|   targetDevice: 2'
     - line: '|   useOnDemandResources: 0'
     - line: '|   accelerometerFrequency: 60'
-    - line: '|   companyName: samples'
-    - line: '|   productName: passthroughcamera'
+    - line: '|   companyName: Linus Zimmer'
+    - line: '|   productName: CamTest'
     - line: '|   defaultCursor: {instanceID: 0}'
     - line: '|   cursorHotspot: {x: 0, y: 0}'
     - line: '|   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b:
@@ -194,7 +194,7 @@ MonoBehaviour:
     - line: '|   androidMaxAspectRatio: 2.1'
     - line: '|   androidMinAspectRatio: 1'
     - line: '|   applicationIdentifier:'
-    - line: '|     Android: com.samples.passthroughcamera'
+    - line: '|     Android: com.LinusZimmer.CamTest'
     - line: '|   buildNumber:'
     - line: '|     Standalone: 0'
     - line: '|     VisionOS: 0'
@@ -203,7 +203,7 @@ MonoBehaviour:
     - line: '|   overrideDefaultApplicationIdentifier: 0'
     - line: '|   AndroidBundleVersionCode: 1'
     - line: '|   AndroidMinSdkVersion: 32'
-    - line: '|   AndroidTargetSdkVersion: 32'
+    - line: '|   AndroidTargetSdkVersion: 33'
     - line: '|   AndroidPreferredInstallLocation: 0'
     - line: '|   aotOptions: '
     - line: '|   stripEngineCode: 1'
@@ -877,7 +877,13 @@ MonoBehaviour:
     - line: '|   XboxOneOverrideIdentityPublisher: '
     - line: '|   vrEditorSettings: {}'
     - line: '|   cloudServicesEnabled:'
+    - line: '|     Build: 0'
+    - line: '|     Game Performance: 0'
+    - line: '|     Legacy Analytics: 0'
+    - line: '|     Purchasing: 0'
+    - line: '|     UDP: 0'
     - line: '|     UNet: 1'
+    - line: '|     Unity Ads: 0'
     - line: '|   luminIcon:'
     - line: '|     m_Name: '
     - line: '|     m_ModelFolderPath: '
@@ -899,11 +905,11 @@ MonoBehaviour:
     - line: '|   captureStartupLogs: {}'
     - line: '|   activeInputHandler: 1'
     - line: '|   windowsGamepadBackendHint: 0'
-    - line: '|   cloudProjectId: '
+    - line: '|   cloudProjectId: 657ae59e-3f24-44c1-a99c-51a7ace79ac8'
     - line: '|   framebufferDepthMemorylessMode: 0'
     - line: '|   qualitySettingsNames: []'
-    - line: '|   projectName: '
-    - line: '|   organizationId: '
+    - line: '|   projectName: passthroughcamera'
+    - line: '|   organizationId: unity_b68dee12b40a276a0035'
     - line: '|   cloudEnabled: 0'
     - line: '|   legacyClampBlendShapeWeights: 0'
     - line: '|   hmiLoadingImage: {instanceID: 0}'
@@ -920,7 +926,7 @@ MonoBehaviour:
     - rid: 5116045251452600511
       type: {class: AndroidPlatformBuildSettings, ns: UnityEditor.Android, asm: UnityEditor.Android.Extensions}
       data:
-        m_Development: 0
+        m_Development: 1
         m_ConnectProfiler: 0
         m_BuildWithDeepProfilingSupport: 0
         m_AllowDebugging: 0
@@ -932,14 +938,14 @@ MonoBehaviour:
         m_CompressionType: 2
         m_InstallInBuildFolder: 0
         m_InsightsSettingsContainer:
-          m_BuildProfileEngineDiagnosticsState: 2
+          m_BuildProfileEngineDiagnosticsState: 1
         m_BuildSubtarget: 6
         m_BuildSystem: 1
         m_ExportAsGoogleAndroidProject: 0
-        m_DebugSymbolLevel: 1
+        m_DebugSymbolLevel: 2
         m_DebugSymbolFormat: 5
         m_CurrentDeploymentTargetId: 2G0YC1ZG4501MX
-        m_BuildType: 2
+        m_BuildType: 1
         m_LinkTimeOptimization: 0
         m_BuildAppBundle: 0
         m_IPAddressToConnect: 

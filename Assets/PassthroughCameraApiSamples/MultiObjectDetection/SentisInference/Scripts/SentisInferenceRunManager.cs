@@ -81,8 +81,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 }
                 // Update Capture data
                 m_uiInference.SetDetectionCapture(targetTexture);
-                // Convert the texture to a Tensor and schedule the inference
-                m_input = Unity.InferenceEngine.TextureConverter.ToTensor(targetTexture, m_inputSize.x, m_inputSize.y, 3);
+                // Convert the texture to a Tensor and schedule the inference (new API requires preallocated tensor)
+                m_input = new Unity.InferenceEngine.Tensor<float>(new Unity.InferenceEngine.TensorShape(1, 3, m_inputSize.y, m_inputSize.x));
+                Unity.InferenceEngine.TextureConverter.ToTensor(targetTexture, m_input);
                 m_schedule = m_engine.ScheduleIterable(m_input);
                 m_download_state = 0;
                 m_started = true;
@@ -104,7 +105,8 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             //Create engine to run model
             m_engine = new Unity.InferenceEngine.Worker(model, m_backend);
             //Run a inference with an empty input to load the model in the memory and not pause the main thread.
-            var input = Unity.InferenceEngine.TextureConverter.ToTensor(new Texture2D(m_inputSize.x, m_inputSize.y), m_inputSize.x, m_inputSize.y, 3);
+            var input = new Unity.InferenceEngine.Tensor<float>(new Unity.InferenceEngine.TensorShape(1, 3, m_inputSize.y, m_inputSize.x));
+            Unity.InferenceEngine.TextureConverter.ToTensor(new Texture2D(m_inputSize.x, m_inputSize.y), input);
             m_engine.Schedule(input);
             IsModelLoaded = true;
         }

@@ -1489,6 +1489,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 7770612531542135302, guid: 259c0c899b7e0c14aa431eefdc0aacc6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 84
+      objectReference: {fileID: 0}
     - target: {fileID: 8092366436576455175, guid: 259c0c899b7e0c14aa431eefdc0aacc6, type: 3}
       propertyPath: m_Layer
       value: 3

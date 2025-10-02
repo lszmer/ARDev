@@ -25,6 +25,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private Font m_font;
         [SerializeField] private Color m_fontColor;
         [SerializeField] private int m_fontSize = 80;
+		[SerializeField] private float m_defaultPlacementDepth = 1.5f;
         [Space(10)]
         public UnityEvent<int> OnObjectsDetected;
 
@@ -44,6 +45,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             public string Label;
             public Vector3? WorldPos;
             public string ClassName;
+			public Vector3 WorldUiPos;
         }
 
         #region Unity Functions
@@ -120,22 +122,32 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 // Get object class name
                 var classname = m_labels[labelIDs[n]].Replace(" ", "_");
 
-                // Get the 3D marker world position using Depth Raycast
+				// Get the 3D marker world position using Depth Raycast
                 var centerPixel = new Vector2Int(Mathf.RoundToInt(perX * camRes.x), Mathf.RoundToInt((1.0f - perY) * camRes.y));
                 var ray = PassthroughCameraUtils.ScreenPointToRayInWorld(CameraEye, centerPixel);
-                var worldPos = m_environmentRaycast.PlaceGameObjectByScreenPos(ray);
+				var worldPos = m_environmentRaycast.PlaceGameObjectByScreenPos(ray);
+				if (!worldPos.HasValue)
+				{
+					// Fallback: place at a default depth along the same ray when environment depth is unavailable
+					worldPos = ray.origin + ray.direction * m_defaultPlacementDepth;
+				}
 
-                // Create a new bounding box
-                var box = new BoundingBox
-                {
-                    CenterX = centerX,
-                    CenterY = centerY,
-                    ClassName = classname,
-                    Width = output[n, 2] * scaleX,
-                    Height = output[n, 3] * scaleY,
-                    Label = $"Id: {n} Class: {classname} Center (px): {(int)centerX},{(int)centerY} Center (%): {perX:0.00},{perY:0.00}",
-                    WorldPos = worldPos,
-                };
+				// Create a new bounding box
+				var box = new BoundingBox
+				{
+					CenterX = centerX,
+					CenterY = centerY,
+					ClassName = classname,
+					Width = output[n, 2] * scaleX,
+					Height = output[n, 3] * scaleY,
+					Label = $"Id: {n} Class: {classname} Center (px): {(int)centerX},{(int)centerY} Center (%): {perX:0.00},{perY:0.00}",
+					WorldPos = worldPos,
+				};
+
+				// Compute the world-space position where the UI box is drawn (center of the panel)
+				var depthZ = worldPos.HasValue ? worldPos.Value.z : 0.0f;
+				var localPanelCenter = new Vector3(centerX, -centerY, depthZ);
+				box.WorldUiPos = m_displayLocation.TransformPoint(localPanelCenter);
 
                 // Add to the list of boxes
                 BoxDrawn.Add(box);

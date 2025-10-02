@@ -45,7 +45,15 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 		private int m_selectedBoxIndex = -1;
 
         #region Unity Functions
-		private void Awake() => OVRManager.display.RecenteredPose += CleanMarkersCallBack;
+		private void Awake()
+		{
+			OVRManager.display.RecenteredPose += CleanMarkersCallBack;
+			// Ensure pause state toggles when the UI menu starts/stops
+			if (m_uiMenuManager)
+			{
+				m_uiMenuManager.OnPause.AddListener(OnPause);
+			}
+		}
 
 		private IEnumerator Start()
         {
@@ -96,6 +104,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 				if (OVRInput.GetUp(m_actionButton) && m_delayPauseBackTime <= 0)
 				{
 					Debug.Log("DetectionManager: A pressed -> place all current detections");
+					m_placeSound?.Play();
 					SpwanCurrentDetectedObjects();
 				}
 
@@ -113,12 +122,14 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             }
 
             // Not start a sentis inference if the app is paused or we don't have a valid WebCamTexture
-            if (m_isPaused || !hasWebCamTextureData)
+			if (m_isPaused || !hasWebCamTextureData)
             {
-                if (m_isPaused)
+				if (m_isPaused)
                 {
                     // Set the delay time for the A button to return from the pause menu
                     m_delayPauseBackTime = 0.1f;
+					// Debug to verify pause gating
+					// Debug.Log("DetectionManager: Update gated by pause");
                 }
                 return;
             }
@@ -220,7 +231,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             var count = 0;
             foreach (var box in m_uiInference.BoxDrawn)
             {
-                if (PlaceMarkerUsingEnvironmentRaycast(box.WorldPos, box.ClassName))
+				// Prefer placing at the world-space position where the box UI is drawn
+				var placePos = box.WorldPos.HasValue ? box.WorldPos : box.WorldUiPos;
+				if (PlaceMarkerUsingEnvironmentRaycast(placePos, box.ClassName))
                 {
                     count++;
                 }
@@ -236,7 +249,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         /// <summary>
         /// Place a marker using the environment raycast
         /// </summary>
-        private bool PlaceMarkerUsingEnvironmentRaycast(Vector3? position, string className)
+		private bool PlaceMarkerUsingEnvironmentRaycast(Vector3? position, string className)
         {
             // Check if the position is valid
             if (!position.HasValue)
@@ -260,7 +273,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 }
             }
 
-            if (!existMarker)
+			if (!existMarker)
             {
                 // spawn a visual marker
                 var eMarker = Instantiate(m_spwanMarker);

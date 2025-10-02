@@ -1621,6 +1621,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6861101848614438543, guid: 946c4bcf5ee78c2438bd71dd2f9fe1f9, type: 3}
+      propertyPath: m_Volume
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7042133912099342345, guid: 946c4bcf5ee78c2438bd71dd2f9fe1f9, type: 3}
       propertyPath: m_Name
       value: DetectionManagerPrefab
@@ -1682,9 +1686,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6846995557286463107}
     - target: {fileID: 7042133912099342453, guid: 946c4bcf5ee78c2438bd71dd2f9fe1f9, type: 3}
+      propertyPath: m_rightHandAnchor
+      value: 
+      objectReference: {fileID: 847150197}
+    - target: {fileID: 7042133912099342453, guid: 946c4bcf5ee78c2438bd71dd2f9fe1f9, type: 3}
       propertyPath: m_environmentRaycast
       value: 
       objectReference: {fileID: 1721288809}
+    - target: {fileID: 7042133912099342453, guid: 946c4bcf5ee78c2438bd71dd2f9fe1f9, type: 3}
+      propertyPath: m_pointerMaxDistance
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7042133912099342453, guid: 946c4bcf5ee78c2438bd71dd2f9fe1f9, type: 3}
       propertyPath: _webCamTextureManager
       value: 

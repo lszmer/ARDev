@@ -14,7 +14,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private WebCamTextureManager m_webCamTextureManager;
 
         [Header("Controls configuration")]
-        [SerializeField] private OVRInput.RawButton m_actionButton = OVRInput.RawButton.A;
+		[SerializeField] private OVRInput.RawButton m_actionButton = OVRInput.RawButton.A;
+		[SerializeField] private OVRInput.RawButton m_pointerButton = OVRInput.RawButton.RHandTrigger;
+		[SerializeField] private OVRInput.RawButton m_deleteAllButton = OVRInput.RawButton.B;
 
         [Header("Ui references")]
         [SerializeField] private DetectionUiMenuManager m_uiMenuManager;
@@ -24,6 +26,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private EnvironmentRayCastSampleManager m_environmentRaycast;
         [SerializeField] private float m_spawnDistance = 0.25f;
         [SerializeField] private AudioSource m_placeSound;
+		[SerializeField] private Transform m_rightHandAnchor;
+		[SerializeField] private float m_pointerMaxDistance = 3.0f;
+		[SerializeField] private float m_pointerSelectionThreshold = 0.12f;
 
         [Header("Sentis inference ref")]
         [SerializeField] private SentisInferenceRunManager m_runInference;
@@ -36,11 +41,13 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private bool m_isStarted = false;
         private bool m_isSentisReady = false;
         private float m_delayPauseBackTime = 0;
+		private LineRenderer m_pointerLine;
+		private int m_selectedBoxIndex = -1;
 
         #region Unity Functions
-        private void Awake() => OVRManager.display.RecenteredPose += CleanMarkersCallBack;
+		private void Awake() => OVRManager.display.RecenteredPose += CleanMarkersCallBack;
 
-        private IEnumerator Start()
+		private IEnumerator Start()
         {
             // Wait until Sentis model is loaded
             var sentisInference = FindAnyObjectByType<SentisInferenceRunManager>();
@@ -48,10 +55,24 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             {
                 yield return null;
             }
-            m_isSentisReady = true;
+			m_isSentisReady = true;
+
+			// Create a simple pointer line for right-hand aiming
+			if (!m_pointerLine)
+			{
+				var go = new GameObject("RightHandPointer");
+				m_pointerLine = go.AddComponent<LineRenderer>();
+				m_pointerLine.positionCount = 2;
+				m_pointerLine.startWidth = 0.003f;
+				m_pointerLine.endWidth = 0.0015f;
+				m_pointerLine.material = new Material(Shader.Find("Sprites/Default"));
+				m_pointerLine.startColor = new Color(0.1f, 0.7f, 1.0f, 0.9f);
+				m_pointerLine.endColor = new Color(0.1f, 0.7f, 1.0f, 0.3f);
+				m_pointerLine.enabled = false;
+			}
         }
 
-        private void Update()
+		private void Update()
         {
             // Get the WebCamTexture CPU image
             var hasWebCamTextureData = m_webCamTextureManager.WebCamTexture != null;
@@ -65,13 +86,24 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                     m_isStarted = true;
                 }
             }
-            else
+			else
             {
-                // Press A button to spawn 3d markers
-                if (OVRInput.GetUp(m_actionButton) && m_delayPauseBackTime <= 0)
-                {
-                    SpwanCurrentDetectedObjects();
-                }
+				// Pointer handling while holding the right side button
+				var isPointerActive = OVRInput.Get(m_pointerButton);
+				HandlePointer(isPointerActive);
+
+				// Press A button: place markers for all current detections (simplified troubleshooting path)
+				if (OVRInput.GetUp(m_actionButton) && m_delayPauseBackTime <= 0)
+				{
+					Debug.Log("DetectionManager: A pressed -> place all current detections");
+					SpwanCurrentDetectedObjects();
+				}
+
+				// Press B button to delete all markers
+				if (OVRInput.GetUp(m_deleteAllButton))
+				{
+					DeleteAllMarkers();
+				}
                 // Cooldown for the A button after return from the pause menu
                 m_delayPauseBackTime -= Time.deltaTime;
                 if (m_delayPauseBackTime <= 0)
@@ -99,7 +131,19 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         }
         #endregion
 
-        #region Marker Functions
+		#region Marker Functions
+		private void DeleteAllMarkers()
+		{
+			foreach (var e in m_spwanedEntities)
+			{
+				if (e)
+				{
+					Destroy(e);
+				}
+			}
+			m_spwanedEntities.Clear();
+			OnObjectsIdentified?.Invoke(0);
+		}
         /// <summary>
         /// Clean 3d markers when the tracking space is re-centered.
         /// </summary>
@@ -112,10 +156,66 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             m_spwanedEntities.Clear();
             OnObjectsIdentified?.Invoke(-1);
         }
+
+		private void HandlePointer(bool active)
+		{
+			if (!m_rightHandAnchor || m_isPaused)
+			{
+				if (m_pointerLine) m_pointerLine.enabled = false;
+				m_selectedBoxIndex = -1;
+				return;
+			}
+
+			if (!active)
+			{
+				if (m_pointerLine) m_pointerLine.enabled = false;
+				m_selectedBoxIndex = -1;
+				return;
+			}
+
+			var ray = new Ray(m_rightHandAnchor.position, m_rightHandAnchor.forward);
+			UpdatePointerVisual(ray);
+			m_selectedBoxIndex = FindClosestBoxToRay(ray, m_pointerMaxDistance, m_pointerSelectionThreshold);
+		}
+
+		private void UpdatePointerVisual(Ray ray)
+		{
+			if (!m_pointerLine) return;
+			m_pointerLine.enabled = true;
+			var start = ray.origin;
+			var end = ray.origin + ray.direction * m_pointerMaxDistance;
+			m_pointerLine.SetPosition(0, start);
+			m_pointerLine.SetPosition(1, end);
+		}
+
+		private int FindClosestBoxToRay(Ray ray, float maxDistance, float maxPerpendicularDist)
+		{
+			var bestIndex = -1;
+			var bestMetric = float.MaxValue;
+			for (var i = 0; i < m_uiInference.BoxDrawn.Count; i++)
+			{
+				var box = m_uiInference.BoxDrawn[i];
+				if (!box.WorldPos.HasValue) continue;
+				var p = box.WorldPos.Value;
+				var toP = p - ray.origin;
+				var along = Vector3.Dot(toP, ray.direction);
+				if (along < 0 || along > maxDistance) continue;
+				var perpendicular = Vector3.Cross(ray.direction, toP).magnitude;
+				if (perpendicular > maxPerpendicularDist) continue;
+				// Prefer closer along-ray distance with small perpendicular
+				var metric = perpendicular * 10.0f + Mathf.Abs(along);
+				if (metric < bestMetric)
+				{
+					bestMetric = metric;
+					bestIndex = i;
+				}
+			}
+			return bestIndex;
+		}
         /// <summary>
         /// Spwan 3d markers for the detected objects
         /// </summary>
-        private void SpwanCurrentDetectedObjects()
+		private void SpwanCurrentDetectedObjects()
         {
             var count = 0;
             foreach (var box in m_uiInference.BoxDrawn)
@@ -127,8 +227,8 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             }
             if (count > 0)
             {
-                // Play sound if a new marker is placed.
-                m_placeSound.Play();
+				// Play sound if a new marker is placed.
+				m_placeSound?.Play();
             }
             OnObjectsIdentified?.Invoke(count);
         }

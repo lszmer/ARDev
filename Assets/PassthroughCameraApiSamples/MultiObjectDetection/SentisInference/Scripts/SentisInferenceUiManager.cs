@@ -34,6 +34,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private string[] m_labels;
         private List<GameObject> m_boxPool = new();
         private Transform m_displayLocation;
+        private DetectionUiMenuManager m_uiMenuManager;
+        private int m_boxRenderIntervalsCount = 0;
+        private float m_boxRenderFpsWindowStart = 0f;
 
         //bounding box data
         public struct BoundingBox
@@ -52,6 +55,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private void Start()
         {
             m_displayLocation = m_displayImage.transform;
+            m_uiMenuManager = FindFirstObjectByType<DetectionUiMenuManager>();
+            m_boxRenderIntervalsCount = 0;
+            m_boxRenderFpsWindowStart = Time.realtimeSinceStartup;
         }
         #endregion
 
@@ -81,6 +87,21 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
         public void DrawUIBoxes(Unity.InferenceEngine.Tensor<float> output, Unity.InferenceEngine.Tensor<int> labelIDs, float imageWidth, float imageHeight)
         {
+            // Count this as one box rendering interval (used for FPS estimation)
+            m_boxRenderIntervalsCount++;
+            var now = Time.realtimeSinceStartup;
+            var elapsed = now - m_boxRenderFpsWindowStart;
+            if (elapsed >= 1.0f)
+            {
+                var fps = m_boxRenderIntervalsCount / Mathf.Max(elapsed, 0.0001f);
+                if (m_uiMenuManager)
+                {
+                    m_uiMenuManager.SetInferenceFps(fps);
+                }
+                m_boxRenderIntervalsCount = 0;
+                m_boxRenderFpsWindowStart = now;
+            }
+
             // Updte canvas position
             m_detectionCanvas.UpdatePosition();
 

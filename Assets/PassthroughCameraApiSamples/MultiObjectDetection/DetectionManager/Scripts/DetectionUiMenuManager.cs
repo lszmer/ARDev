@@ -30,6 +30,8 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         // start menu
         private int m_objectsDetected = 0;
         private int m_objectsIdentified = 0;
+        private string m_modelName = "";
+        private float m_inferenceFps = 0f;
 
         // pause menu
         public bool IsPaused { get; private set; } = true;
@@ -121,7 +123,12 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         #region Ui state: detection information
         private void UpdateLabelInformation()
         {
-            m_labelInfromation.text = $"Unity Sentis version: 2.1.1\nAI model: Yolo\nDetecting objects: {m_objectsDetected}\nObjects identified: {m_objectsIdentified}";
+            m_labelInfromation.text =
+                $"Unity Sentis version: 2.1.1\n" +
+                $"AI model: {m_modelName}\n" +
+                $"Detecting objects: {m_objectsDetected}\n" +
+                $"Objects identified: {m_objectsIdentified}\n" +
+                $"Inference FPS: {(m_inferenceFps > 0 ? m_inferenceFps.ToString("0.0") : "-")}";
         }
 
         public void OnObjectsDetected(int objects)
@@ -141,6 +148,18 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             {
                 m_objectsIdentified += objects;
             }
+            UpdateLabelInformation();
+        }
+
+        public void SetModelName(string modelName)
+        {
+            m_modelName = modelName ?? "";
+            UpdateLabelInformation();
+        }
+
+        public void SetInferenceFps(float fps)
+        {
+            m_inferenceFps = fps;
             UpdateLabelInformation();
         }
         #endregion

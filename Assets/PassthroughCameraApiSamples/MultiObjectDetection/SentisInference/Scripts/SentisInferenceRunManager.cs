@@ -39,6 +39,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private Unity.InferenceEngine.Tensor<float> m_pullOutput;
         private Unity.InferenceEngine.Tensor<int> m_pullLabelIDs;
         private bool m_isWaiting = false;
+        private float m_inferenceStartTime = 0f;
 
         #region Unity Functions
         private IEnumerator Start()
@@ -87,6 +88,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 m_schedule = m_engine.ScheduleIterable(m_input);
                 m_download_state = 0;
                 m_started = true;
+                m_inferenceStartTime = Time.realtimeSinceStartup;
             }
         }
 
@@ -104,6 +106,12 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             Debug.Log($"Sentis model loaded correctly with iouThreshold: {m_iouThreshold} and scoreThreshold: {m_scoreThreshold}");
             //Create engine to run model
             m_engine = new Unity.InferenceEngine.Worker(model, m_backend);
+            // Update FooterText with model name
+            var uiMenu = FindFirstObjectByType<DetectionUiMenuManager>();
+            if (uiMenu)
+            {
+                uiMenu.SetModelName(m_sentisModel ? m_sentisModel.name : "Unknown");
+            }
             //Run a inference with an empty input to load the model in the memory and not pause the main thread.
             var input = new Unity.InferenceEngine.Tensor<float>(new Unity.InferenceEngine.TensorShape(1, 3, m_inputSize.y, m_inputSize.x));
             Unity.InferenceEngine.TextureConverter.ToTensor(new Texture2D(m_inputSize.x, m_inputSize.y), input);
@@ -230,6 +238,17 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                     break;
                 case 3:
                     m_uiInference.DrawUIBoxes(m_output, m_labelIDs, m_inputSize.x, m_inputSize.y);
+                    // Update inference FPS in footer
+                    var elapsed = Time.realtimeSinceStartup - m_inferenceStartTime;
+                    if (elapsed > 0f)
+                    {
+                        var fps = 1f / elapsed;
+                        var uiMenuMgr = FindFirstObjectByType<DetectionUiMenuManager>();
+                        if (uiMenuMgr)
+                        {
+                            uiMenuMgr.SetInferenceFps(fps);
+                        }
+                    }
                     m_download_state = 5;
                     break;
                 case 4:

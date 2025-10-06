@@ -281,7 +281,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
                 // Update marker transform with the real world transform
                 eMarker.transform.SetPositionAndRotation(position.Value, Quaternion.identity);
-                eMarker.GetComponent<DetectionSpawnMarkerAnim>().SetYoloClassName(className);
+                var anim = eMarker.GetComponent<DetectionSpawnMarkerAnim>();
+                anim.SetYoloClassName(className);
+                anim.SetColor(YoloClassColorMap.GetColorForClass(className));
             }
 
             return !existMarker;

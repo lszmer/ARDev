@@ -197,6 +197,13 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             var label = panel.GetComponentInChildren<Text>();
             label.text = box.Label;
             label.fontSize = 12;
+
+            // Set color per class
+            var img = panel.GetComponent<Image>();
+            if (img != null)
+            {
+                img.color = YoloClassColorMap.GetColorForClass(box.ClassName);
+            }
         }
 
         private GameObject CreateNewBox(Color color)

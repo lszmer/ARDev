@@ -12,6 +12,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private Transform m_model;
         [SerializeField] private TextMesh m_textModel;
         [SerializeField] private Transform m_textEntity;
+        [SerializeField] private Renderer m_modelRenderer;
 
         private Vector3 m_angles;
         private OVRCameraRig m_camera;
@@ -58,6 +59,18 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         public string GetYoloClassName()
         {
             return m_textModel.text;
+        }
+
+        public void SetColor(Color c)
+        {
+            if (m_modelRenderer && m_modelRenderer.material)
+            {
+                m_modelRenderer.material.color = c;
+            }
+            if (m_textModel)
+            {
+                m_textModel.color = c;
+            }
         }
     }
 }

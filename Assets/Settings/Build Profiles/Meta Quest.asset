@@ -35,7 +35,7 @@ MonoBehaviour:
     - line: '|   useOnDemandResources: 0'
     - line: '|   accelerometerFrequency: 60'
     - line: '|   companyName: Linus Zimmer'
-    - line: '|   productName: CamTest_v13_colours'
+    - line: '|   productName: CamTest_v14_thresholds'
     - line: '|   defaultCursor: {instanceID: 0}'
     - line: '|   cursorHotspot: {x: 0, y: 0}'
     - line: '|   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b:
@@ -164,11 +164,15 @@ MonoBehaviour:
     - line: '|   loadStoreDebugModeEnabled: 0'
     - line: '|   visionOSBundleVersion: 1.0'
     - line: '|   tvOSBundleVersion: 1.0'
-    - line: '|   bundleVersion: 0.6'
+    - line: '|   bundleVersion: 0.7'
     - line: '|   preloadedAssets:'
     - line: '|   - {instanceID: 0}'
     - line: '|   - {fileID: 11400000, guid: 08b72f952105345fc9de1afcc8699a7c, type:
         2}'
+    - line: '|   - {fileID: 4351115104115131797, guid: a971eac5e950046e586c5e153e32d05c,
+        type: 2}'
+    - line: '|   - {fileID: 1123834834911464551, guid: 99ae3d2bbcc984554aeafbfb334ce291,
+        type: 2}'
     - line: '|   metroInputSource: 0'
     - line: '|   wsaTransparentSwapchain: 0'
     - line: '|   m_HolographicPauseOnTrackingLoss: 1'
@@ -190,7 +194,7 @@ MonoBehaviour:
     - line: '|   androidMaxAspectRatio: 2.1'
     - line: '|   androidMinAspectRatio: 1'
     - line: '|   applicationIdentifier:'
-    - line: '|     Android: com.LinusZimmer.CamTest_v13_colours'
+    - line: '|     Android: com.LinusZimmer.CamTest_v14_thresholds'
     - line: '|   buildNumber:'
     - line: '|     Standalone: 0'
     - line: '|     VisionOS: 0'

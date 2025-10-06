@@ -18,5 +18,5 @@ StreamingAssets*
 !NativeSamples.zip
 .DS_Store
 MLModels/images/
-
+MLModels/runs
 Builds/

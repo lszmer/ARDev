@@ -124,11 +124,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private void UpdateLabelInformation()
         {
             m_labelInfromation.text =
-                $"Unity Sentis version: 2.1.1\n" +
+                $"Inference FPS: {(m_inferenceFps > 0 ? m_inferenceFps.ToString("0.0") : "-")}\n" +
                 $"AI model: {m_modelName}\n" +
                 $"Detecting objects: {m_objectsDetected}\n" +
-                $"Objects identified: {m_objectsIdentified}\n" +
-                $"Inference FPS: {(m_inferenceFps > 0 ? m_inferenceFps.ToString("0.0") : "-")}";
+                $"Objects identified: {m_objectsIdentified}";
         }
 
         public void OnObjectsDetected(int objects)

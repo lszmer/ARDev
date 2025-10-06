@@ -142,11 +142,17 @@ public class ModelQuantizerEditor
 		{
 			var custom = EditorUtility.DisplayDialog("Custom IoU", "Using default 0.6. Change in code if needed.", "OK");
 		}
-		var scoreStr = EditorUtility.DisplayDialogComplex("Score Threshold", "Choose Score:", "0.25 (default)", "0.2", "Custom");
-		float score = scoreStr == 1 ? 0.2f : 0.25f;
-		if (scoreStr == 2)
+		// Score threshold selection with more options (0.2 - 0.6) and default 0.35
+		float score = 0.35f;
+		var scoreDlg = EditorUtility.DisplayDialogComplex("Score Threshold", "Choose Score:", "0.35 (default)", "0.2", "More…");
+		if (scoreDlg == 0) { score = 0.35f; }
+		else if (scoreDlg == 1) { score = 0.2f; }
+		else
 		{
-			var custom = EditorUtility.DisplayDialog("Custom Score", "Using default 0.25. Change in code if needed.", "OK");
+			var moreDlg = EditorUtility.DisplayDialogComplex("Score Threshold (More)", "Choose Score:", "0.3", "0.5", "0.6");
+			if (moreDlg == 0) score = 0.3f;
+			else if (moreDlg == 1) score = 0.5f;
+			else score = 0.6f;
 		}
 
 		var outPath = EditorUtility.SaveFilePanel("Save Sentis Model As", Path.GetDirectoryName(onnxPath), Path.GetFileNameWithoutExtension(onnxPath) + "-nms.sentis", "sentis");

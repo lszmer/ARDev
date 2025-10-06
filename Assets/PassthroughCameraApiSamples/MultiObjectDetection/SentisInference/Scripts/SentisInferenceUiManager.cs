@@ -196,7 +196,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             //Set label text
             var label = panel.GetComponentInChildren<Text>();
             label.text = box.Label;
-            label.fontSize = 12;
+            label.fontSize = 18;
 
             // Set color per class
             var img = panel.GetComponent<Image>();

@@ -1761,10 +1761,14 @@ PrefabInstance:
     - target: {fileID: 2681575481727882275, guid: 927c1b782bb796b4b9b433d533cbccca, type: 3}
       propertyPath: m_sentisModel
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: eb7894a5b941c41e4940e6ed2855841e, type: 3}
+      objectReference: {fileID: 5022602860645237092, guid: f59541cc420c54930919dcd8b9b3d408, type: 3}
     - target: {fileID: 2681575481727882275, guid: 927c1b782bb796b4b9b433d533cbccca, type: 3}
       propertyPath: m_iouThreshold
       value: 0.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 2681575481727882275, guid: 927c1b782bb796b4b9b433d533cbccca, type: 3}
+      propertyPath: m_scoreThreshold
+      value: 0.375
       objectReference: {fileID: 0}
     - target: {fileID: 4976470222712890361, guid: 927c1b782bb796b4b9b433d533cbccca, type: 3}
       propertyPath: m_webCamTextureManager

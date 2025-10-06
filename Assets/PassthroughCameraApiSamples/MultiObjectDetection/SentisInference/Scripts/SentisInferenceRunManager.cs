@@ -25,7 +25,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [Header("[Editor Only] Convert to Sentis")]
         public Unity.InferenceEngine.ModelAsset OnnxModel;
         [SerializeField, Range(0, 1)] private float m_iouThreshold = 0.6f;
-        [SerializeField, Range(0, 1)] private float m_scoreThreshold = 0.23f;
+        [SerializeField, Range(0, 1)] private float m_scoreThreshold = 0.35f;
         [Space(40)]
 
         private Unity.InferenceEngine.Worker m_engine;

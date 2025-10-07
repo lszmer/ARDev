@@ -2,7 +2,7 @@
 """Brief YOLO .pt -> ONNX exporter using Ultralytics (ONNX backend).
 
 Usage:
-  python MLModels/export_yolo_to_onnx.py --pt MLModels/yolov12n.pt --subdir YOLO --imgsz 640
+  python MLModels/export_yolo_to_onnx.py --pt MLModels/yolov12n-seg.pt --subdir YOLO --imgsz 640
 """
 
 import argparse

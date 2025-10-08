@@ -102,7 +102,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private void LoadModel()
         {
             //Load model
-            var model = Unity.InferenceEngine.ModelLoader.Load(m_sentisModel);
+            var selected = PassthroughCameraSamples.SelectedModelRegistry.SelectedModel;
+            var modelAssetToUse = selected != null ? selected : m_sentisModel;
+            var model = Unity.InferenceEngine.ModelLoader.Load(modelAssetToUse);
             Debug.Log($"Sentis model loaded correctly with iouThreshold: {m_iouThreshold} and scoreThreshold: {m_scoreThreshold}");
             //Create engine to run model
             m_engine = new Unity.InferenceEngine.Worker(model, m_backend);
@@ -110,7 +112,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             var uiMenu = FindFirstObjectByType<DetectionUiMenuManager>();
             if (uiMenu)
             {
-                uiMenu.SetModelName(m_sentisModel ? m_sentisModel.name : "Unknown");
+                uiMenu.SetModelName(modelAssetToUse ? modelAssetToUse.name : "Unknown");
             }
             //Run a inference with an empty input to load the model in the memory and not pause the main thread.
             var input = new Unity.InferenceEngine.Tensor<float>(new Unity.InferenceEngine.TensorShape(1, 3, m_inputSize.y, m_inputSize.x));

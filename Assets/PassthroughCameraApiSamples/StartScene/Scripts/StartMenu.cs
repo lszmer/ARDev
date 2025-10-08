@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using Meta.XR.Samples;
 using UnityEngine;
+using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace PassthroughCameraSamples.StartScene
 {
@@ -43,6 +47,39 @@ namespace PassthroughCameraSamples.StartScene
             }
 
             var uiBuilder = DebugUIBuilder.Instance;
+            // Add model selection radios next to scene selection
+            var availableModels = FindAvailableSentisModels();
+            if (availableModels.Count > 0)
+            {
+                _ = uiBuilder.AddLabel("Sentis Models", DebugUIBuilder.DEBUG_PANE_LEFT);
+                var lastSelectedName = PassthroughCameraSamples.SelectedModelRegistry.GetLastSelectedModelName();
+                if (string.IsNullOrEmpty(lastSelectedName))
+                {
+                    // Default to first model if nothing stored
+                    PassthroughCameraSamples.SelectedModelRegistry.SetSelectedModel(availableModels[0]);
+                }
+                foreach (var model in availableModels)
+                {
+                    var modelName = model != null ? model.name : "Unnamed";
+                    var isDefault = !string.IsNullOrEmpty(lastSelectedName) ? modelName == lastSelectedName : false;
+                    _ = uiBuilder.AddRadio(modelName, "sentismodels", (Toggle t) =>
+                    {
+                        if (t.isOn)
+                        {
+                            PassthroughCameraSamples.SelectedModelRegistry.SetSelectedModel(model);
+                        }
+                    }, DebugUIBuilder.DEBUG_PANE_LEFT);
+                    if (isDefault)
+                    {
+                        PassthroughCameraSamples.SelectedModelRegistry.SetSelectedModel(model);
+                    }
+                }
+                _ = uiBuilder.AddDivider(DebugUIBuilder.DEBUG_PANE_LEFT);
+            }
+            else
+            {
+                Debug.Log("Sentis: No .sentis models found in Editor scan or Resources. Place .sentis under Assets/PassthroughCameraApiSamples/MultiObjectDetection/SentisInference/Model (Editor) or under Assets/Resources/... for runtime.");
+            }
             if (passthroughScenes.Count > 0)
             {
                 _ = uiBuilder.AddLabel("Passthrough Sample Scenes", DebugUIBuilder.DEBUG_PANE_LEFT);
@@ -73,6 +110,49 @@ namespace PassthroughCameraSamples.StartScene
             }
 
             uiBuilder.Show();
+        }
+
+        private static List<Unity.InferenceEngine.ModelAsset> FindAvailableSentisModels()
+        {
+            var models = new List<Unity.InferenceEngine.ModelAsset>();
+
+#if UNITY_EDITOR
+            // Editor-only: robust scan the folder for any asset paths containing ".sentis"
+            var searchFolders = new[] { "Assets/PassthroughCameraApiSamples/MultiObjectDetection/SentisInference/Model" };
+            var allGuids = AssetDatabase.FindAssets(string.Empty, searchFolders);
+            foreach (var guid in allGuids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!string.IsNullOrEmpty(path) && path.ToLowerInvariant().Contains(".sentis"))
+                {
+                    var asset = AssetDatabase.LoadAssetAtPath<Unity.InferenceEngine.ModelAsset>(path);
+                    if (asset != null)
+                    {
+                        models.Add(asset);
+                    }
+                }
+            }
+            Debug.Log($"Sentis: Editor scan found {models.Count} model(s).");
+#else
+            // Runtime: attempt to load from Resources if user placed models there
+            var runtimeModels = Resources.LoadAll<Unity.InferenceEngine.ModelAsset>(
+                "PassthroughCameraApiSamples/MultiObjectDetection/SentisInference/Model");
+            if (runtimeModels != null && runtimeModels.Length > 0)
+            {
+                models.AddRange(runtimeModels);
+            }
+            // Also allow any location under Resources root
+            if (models.Count == 0)
+            {
+                var anyModels = Resources.LoadAll<Unity.InferenceEngine.ModelAsset>(string.Empty);
+                if (anyModels != null && anyModels.Length > 0)
+                {
+                    models.AddRange(anyModels);
+                }
+            }
+#endif
+
+            return models;
         }
 
         private void LoadScene(int idx)
